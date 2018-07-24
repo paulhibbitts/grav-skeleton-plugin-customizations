@@ -44,12 +44,12 @@ form:
     disable_on_page_save:
       type: toggle
       default: 0
-      label: Disable Automatic Sync on Page Saves
-      help: If Yes, synchronization will not be performed on page save events.
+      label: Sync on Page Saves
+      help: If No, synchronization will not be automatically performed on page save events.
       highlight: 0
       options:
-        1: PLUGIN_ADMIN.YES
-        0: PLUGIN_ADMIN.NO
+        0: PLUGIN_ADMIN.YES
+        1: PLUGIN_ADMIN.NO
       validate:
         type: bool
     repository:
