@@ -47,10 +47,10 @@ class GitSyncPlugin extends Plugin
                 'onAdminMenu'          => ['onAdminMenu', 0],
                 'onAdminSave'          => ['onAdminSave', 0],
                 'onAdminAfterSave'     => ['onAdminAfterSave', 0],
-                'onAdminAfterSaveAs'   => ['synchronize', 0],
-                'onAdminAfterDelete'   => ['synchronize', 0],
-                'onAdminAfterAddMedia' => ['synchronize', 0],
-                'onAdminAfterDelMedia' => ['synchronize', 0],
+                'onAdminAfterSaveAs'   => ['onAdminAfterSaveAs', 0],
+                'onAdminAfterDelete'   => ['onAdminAfterDelete', 0],
+                'onAdminAfterAddMedia' => ['onAdminAfterMedia', 0],
+                'onAdminAfterDelMedia' => ['onAdminAfterMedia', 0],
             ]);
 
             return;
@@ -113,7 +113,6 @@ class GitSyncPlugin extends Plugin
             return true;
         }
 
-		$config = $this->config->get('plugins.' . $this->name);
         $this->grav->fireEvent('onGitSyncBeforeSynchronize');
 
         if (!$this->git->isWorkingCopyClean()) {
@@ -187,8 +186,6 @@ class GitSyncPlugin extends Plugin
             $this->controller->execute();
             $this->controller->redirect();
         }
-
-
     }
 
     public function onAdminSave($event)
@@ -222,6 +219,10 @@ class GitSyncPlugin extends Plugin
 
     public function onAdminAfterSave($event)
     {
+        if (!$this->grav['config']->get('plugins.git-sync.sync.on_save', true)) {
+            return true;
+        }
+
         $obj           = $event['object'];
         $isPluginRoute = $this->grav['uri']->path() == '/admin/plugins/' . $this->name;
 
@@ -231,10 +232,6 @@ class GitSyncPlugin extends Plugin
             return true;
         }
         */
-
-		if ($this->grav['config']->get('plugins.git-sync.disable_on_page_save')) {
-			return true;
-		}
 
         if ($obj instanceof Data) {
             if (!$isPluginRoute || !Helper::isGitInstalled()) {
@@ -256,14 +253,36 @@ class GitSyncPlugin extends Plugin
         return true;
     }
 
+    public function onAdminAfterSaveAs()
+    {
+        if ($this->grav['config']->get('plugins.git-sync.sync.on_save', true)) {
+            $this->synchronize();
+        }
+
+        return true;
+    }
+
+    public function onAdminAfterDelete()
+    {
+        if ($this->grav['config']->get('plugins.git-sync.sync.on_delete', true)) {
+            $this->synchronize();
+        }
+
+        return true;
+    }
+
+    public function onAdminAfterMedia()
+    {
+        if ($this->grav['config']->get('plugins.git-sync.sync.on_media', true)) {
+            $this->synchronize();
+        }
+
+        return true;
+    }
+
     public function onFormProcessed(Event $event)
     {
         $action = $event['action'];
-
-
-		if ($this->grav['config']->get('plugins.git-sync.disable_on_page_save')) {
-			return true;
-		}
 
         if ($action == 'gitsync') {
             $this->synchronize();
