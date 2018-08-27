@@ -92,7 +92,7 @@ form:
     sync.on_media:
       type: toggle
       label: Sync on Media Changes
-      help: Sync with the remote directory when a media is uploaded or deleted through the admin immediatly (instead of only syncing when the page is saved)
+      help: Sync with the remote directory when a media is uploaded or deleted through the admin immediately (instead of only syncing when the page is saved)
       default: 1
       highlight: 1
       options:
